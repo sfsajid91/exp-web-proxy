@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const server = createServer();
-const port = process.env.PORT || 2020;
+const port = process.env.PORT || 3000;
 
 // Create bare server
 const bareServer = createBareServer('/bare/');
