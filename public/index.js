@@ -1,5 +1,11 @@
-const form = document.querySelector('form');
-const input = document.querySelector('input');
+const form = document.querySelector('#url-form');
+const input = document.querySelector('#url-input');
+const quickLinks = document.querySelectorAll('.quick-link');
+
+quickLinks.forEach((link) => {
+    const originalHref = link.getAttribute('data-url');
+    link.href = __uv$config.prefix + __uv$config.encodeUrl(originalHref);
+});
 
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -16,10 +22,7 @@ form.addEventListener('submit', async (event) => {
 });
 
 function isUrl(val = '') {
-    if (
-        /^http(s?):\/\//.test(val) ||
-        (val.includes('.') && val.substr(0, 1) !== ' ')
-    )
-        return true;
-    return false;
+    return (
+        /^https?:\/\//.test(val) || (val.includes('.') && !val.startsWith(' '))
+    );
 }

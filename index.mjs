@@ -15,6 +15,11 @@ const port = process.env.PORT || 3000;
 // Create bare server
 const bareServer = createBareServer('/bare/');
 
+// bareServer.on('request', (req, res) => {
+//     console.log('Bare server request');
+//     res.end('Hello, world!');
+// });
+
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uv/', express.static(uvPath));

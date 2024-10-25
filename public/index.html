@@ -1,54 +1,160 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Web Proxy</title>
         <style>
-            .search {
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont,
+                    sans-serif;
+            }
+
+            body {
+                min-height: 100vh;
                 display: flex;
                 flex-direction: column;
-                justify-content: center;
                 align-items: center;
-                height: 100vh;
+                justify-content: center;
+                background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+                padding: 20px;
             }
 
-            form {
+            .container {
+                width: 100%;
+                max-width: 600px;
+                text-align: center;
+            }
+
+            .logo {
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: #1a1a1a;
+                margin-bottom: 1.5rem;
+                letter-spacing: -1px;
+            }
+
+            .search-container {
+                background: white;
+                padding: 0.5rem;
+                border-radius: 12px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                margin-bottom: 1.5rem;
                 display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 10px;
-                min-width: 300px;
+                transition: transform 0.2s ease;
             }
 
-            input {
-                padding: 10px;
-                border-radius: 5px;
+            .search-container:focus-within {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 8px rgba(0, 0, 0, 0.08);
+            }
+
+            .search-input {
                 flex: 1;
+                padding: 0.75rem 1rem;
+                border: none;
+                outline: none;
+                font-size: 1rem;
+                color: #1a1a1a;
+                background: transparent;
             }
 
-            button {
-                padding: 10px;
-                border-radius: 5px;
+            .search-button {
+                padding: 0.75rem 1.5rem;
+                background: #2563eb;
+                color: white;
                 border: none;
-                background-color: #212121;
-                color: #fff;
+                border-radius: 8px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+            }
+
+            .search-button:hover {
+                background: #1d4ed8;
+            }
+
+            .quick-links {
+                display: flex;
+                gap: 1rem;
+                justify-content: center;
+                margin-bottom: 2rem;
+            }
+
+            .quick-link {
+                padding: 0.5rem 1rem;
+                background: white;
+                border-radius: 8px;
+                color: #4b5563;
+                text-decoration: none;
+                font-size: 0.875rem;
+                transition: all 0.2s ease;
+                border: 1px solid #e5e7eb;
+            }
+
+            .quick-link:hover {
+                background: #f9fafb;
+                color: #1a1a1a;
+            }
+
+            .footer {
+                margin-top: 2rem;
+                color: #6b7280;
+                font-size: 0.875rem;
+            }
+
+            @media (max-width: 640px) {
+                .container {
+                    padding: 0 1rem;
+                }
+
+                .quick-links {
+                    flex-wrap: wrap;
+                }
+
+                .logo {
+                    font-size: 2rem;
+                }
             }
         </style>
     </head>
     <body>
-        <div class="search">
-            <h1>Web Proxy</h1>
-            <form>
-                <input placeholder="Enter URL (e.g., https://example.com)" />
-                <button type="submit">Go</button>
-            </form>
-        </div>
+        <div class="container">
+            <h1 class="logo">WebProxy</h1>
 
+            <form id="url-form" class="search-container">
+                <input
+                    type="text"
+                    id="url-input"
+                    class="search-input"
+                    placeholder="Enter URL or search query"
+                    autofocus
+                />
+                <button type="submit" class="search-button">Go</button>
+            </form>
+
+            <div class="quick-links">
+                <a href="#" data-url="https://youtube.com" class="quick-link"
+                    >YouTube</a
+                >
+                <a href="#" data-url="https://google.com" class="quick-link"
+                    >Google</a
+                >
+                <a href="#" data-url="https://discord.com" class="quick-link"
+                    >Discord</a
+                >
+                <a href="#" data-url="https://reddit.com" class="quick-link"
+                    >Reddit</a
+                >
+            </div>
+
+            <div class="footer">Browse securely and privately</div>
+        </div>
         <script src="/uv/uv.bundle.js"></script>
         <script src="/uv/uv.config.js"></script>
         <script src="index.js"></script>
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-            crossorigin="anonymous"
-        ></script>
     </body>
 </html>
