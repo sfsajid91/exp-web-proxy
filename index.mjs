@@ -1,54 +1,54 @@
-import { uvPath } from '@titaniumnetwork-dev/ultraviolet';
-import { createBareServer } from '@tomphttp/bare-server-node';
+import { createBareServer } from '@nebula-services/bare-server-node';
 import express from 'express';
 import { createServer } from 'http';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import wisp from 'wisp-server-node';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+//transports
+import { baremuxPath } from '@mercuryworkshop/bare-mux/node';
+import { epoxyPath } from '@mercuryworkshop/epoxy-transport';
+
+// dirnames
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-const server = createServer();
-const port = process.env.PORT || 3000;
+const httpServer = createServer(app);
 
-// Create bare server
-const bareServer = createBareServer('/bare/');
+const bare = createBareServer('/bare/', {
+    logErrors: true,
+    blockLocal: false,
+});
 
-// bareServer.on('request', (req, res) => {
-//     console.log('Bare server request');
-//     res.end('Hello, world!');
-// });
+app.use((req, res, next) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+    next();
+});
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uv/', express.static(uvPath));
-
-// Handle requests
-server.on('request', (req, res) => {
-    if (bareServer.shouldRoute(req)) {
-        bareServer.routeRequest(req, res);
+app.use((req, res, next) => {
+    if (bare.shouldRoute(req)) {
+        bare.routeRequest(req, res);
     } else {
-        app(req, res);
+        next();
     }
 });
 
-// Handle upgrades
-server.on('upgrade', (req, socket, head) => {
-    if (bareServer.shouldRoute(req)) {
-        bareServer.routeUpgrade(req, socket, head);
+app.use(express.static(path.join(__dirname, './public')));
+app.use('/scram', express.static(path.join(__dirname, './scramjet')));
+app.use('/baremux', express.static(baremuxPath));
+app.use('/epoxy', express.static(epoxyPath));
+
+httpServer.on('upgrade', (req, socket, head) => {
+    if (bare.shouldRoute(req)) {
+        bare.routeUpgrade(req, socket, head);
     } else {
-        socket.end();
+        wisp.routeRequest(req, socket, head);
     }
 });
 
-// Start server
-server.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
+const PORT = process.env.PORT || 3000;
 
-// Handle shutdown
-process.on('SIGINT', () => {
-    bareServer.close();
-    process.exit(0);
+httpServer.listen(PORT, '0.0.0.0', () => {
+    console.log(`Listening on port ${PORT}`);
 });

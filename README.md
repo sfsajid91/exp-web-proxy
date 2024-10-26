@@ -1,6 +1,6 @@
 # Exp Web Proxy
 
-A simple web proxy built with Node.js and Express and Ultraviolet.
+A simple web proxy built with Node.js and Express and Scramjet.
 
 ## Setup
 
