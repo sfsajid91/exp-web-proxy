@@ -18,6 +18,28 @@ pnpm start
 
 3. Open the browser and navigate to `http://localhost:3000`
 
+## Docker
+
+Run in detached mode
+
+```bash
+docker compose up -d --build
+```
+
+Stop the container
+
+```bash
+docker compose down
+```
+
+For Logs
+
+```bash
+docker compose logs -f
+```
+
+For more information on Docker Compose, see the [official documentation](https://docs.docker.com/compose/).
+
 ## Screenshot
 
 ![Screenshot](./.github/images/image.png)
