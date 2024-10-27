@@ -1,36 +1,64 @@
 class CustomSharedWorker {
-    constructor(scriptURL) {
+    constructor(scriptURL, options = {}) {
+        this.scriptURL = scriptURL;
+        this.name = options.name || '';
         this.ports = new Set();
         this.messageQueue = [];
         this.isInitialized = false;
+        this.onerror = null;
 
-        // Load and execute the worker script
-        fetch(scriptURL)
-            .then((response) => response.text())
+        this.init();
+    }
+
+    init() {
+        fetch(this.scriptURL)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
             .then((code) => {
-                // Create a safe execution context
                 const workerContext = {
+                    name: this.name,
                     onconnect: null,
+                    onerror: this.handleError.bind(this),
                     postMessage: this.broadcast.bind(this),
                     addEventListener: this.addEventListener.bind(this),
                     removeEventListener: this.removeEventListener.bind(this),
-                    close: () => {
-                        this.ports.clear();
-                        this.messageQueue = [];
-                    },
+                    close: this.terminate.bind(this),
                 };
 
-                // Execute the worker code in the context
-                const executeWorker = new Function('self', code);
-                executeWorker(workerContext);
+                try {
+                    const executeWorker = new Function('self', code);
+                    executeWorker(workerContext);
+                } catch (error) {
+                    this.handleError(error);
+                    return;
+                }
 
                 this.workerContext = workerContext;
                 this.isInitialized = true;
 
-                // Process any queued messages
                 this.messageQueue.forEach((msg) => this.handleMessage(msg));
                 this.messageQueue = [];
-            });
+            })
+            .catch(this.handleError.bind(this));
+    }
+
+    handleError(error) {
+        console.error('CustomSharedWorker error:', error);
+        if (this.onerror) {
+            this.onerror(error);
+        }
+    }
+
+    terminate() {
+        this.ports.forEach((port) => port.close());
+        this.ports.clear();
+        this.messageQueue = [];
+        this.isInitialized = false;
+        this.workerContext = null;
     }
 
     // Create a new MessagePort-like interface
@@ -61,6 +89,7 @@ class CustomSharedWorker {
                 const listeners = port.listeners?.get(event.type) || new Set();
                 listeners.forEach((listener) => listener(event));
             },
+            onerror: null,
         };
 
         // Simulate MessagePort connection
