@@ -11,6 +11,12 @@ const scramjet = new ScramjetController({
             serviceworkers: true,
         },
     },
+    // codec: {
+    //     encode: `if (!url) return url;
+    // return btoa(encodeURIComponent(url));`,
+    //     decode: `if (!url) return url;
+    // return decodeURIComponent(atob(url));`,
+    // },
 });
 
 scramjet.init('./sw.js');

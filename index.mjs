@@ -1,4 +1,5 @@
 import { createBareServer } from '@nebula-services/bare-server-node';
+import cors from 'cors';
 import express from 'express';
 import { createServer } from 'http';
 import path from 'node:path';
@@ -15,6 +16,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const httpServer = createServer(app);
 
+app.use(express.json());
+app.use(cors());
+
 const bare = createBareServer('/bare/', {
     logErrors: true,
     blockLocal: false,
@@ -24,6 +28,14 @@ app.use((req, res, next) => {
     res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
     res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
     next();
+});
+
+app.post('/test', (req, res) => {
+    console.log({
+        date: new Date().toISOString(),
+        ...req.body,
+    });
+    res.send('Hello World!');
 });
 
 app.use((req, res, next) => {
@@ -49,6 +61,6 @@ httpServer.on('upgrade', (req, socket, head) => {
 
 const PORT = process.env.PORT || 3000;
 
-httpServer.listen(PORT, '0.0.0.0', () => {
+httpServer.listen(PORT, '::', () => {
     console.log(`Listening on port ${PORT}`);
 });
