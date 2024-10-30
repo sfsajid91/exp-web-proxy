@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
         <title>Web Proxy</title>
         <style>
             * {
@@ -120,7 +121,16 @@
                 }
             }
         </style>
+
+        <script src="baremux/index.js" defer></script>
+        <script src="epoxy/index.js" defer></script>
+        <script src="uv/uv.bundle.js" defer></script>
+        <script src="uv/uv.config.js" defer></script>
+        <script src="register-sw.js" defer></script>
+        <!-- <script src="search.js" defer></script> -->
+        <script src="index.js" defer></script>
     </head>
+
     <body>
         <div class="container">
             <h1 class="logo">WebProxy</h1>
@@ -137,24 +147,37 @@
             </form>
 
             <div class="quick-links">
-                <a href="#" data-url="https://youtube.com" class="quick-link"
+                <a
+                    href="#"
+                    target="_blank"
+                    data-url="https://youtube.com"
+                    class="quick-link"
                     >YouTube</a
                 >
-                <a href="#" data-url="https://google.com" class="quick-link"
+                <a
+                    href="#"
+                    target="_blank"
+                    data-url="https://google.com"
+                    class="quick-link"
                     >Google</a
                 >
-                <a href="#" data-url="https://discord.com" class="quick-link"
+                <a
+                    href="#"
+                    target="_blank"
+                    data-url="https://discord.com"
+                    class="quick-link"
                     >Discord</a
                 >
-                <a href="#" data-url="https://reddit.com" class="quick-link"
+                <a
+                    href="#"
+                    target="_blank"
+                    data-url="https://reddit.com"
+                    class="quick-link"
                     >Reddit</a
                 >
             </div>
 
             <div class="footer">Browse securely and privately</div>
         </div>
-        <script src="/uv/uv.bundle.js"></script>
-        <script src="/uv/uv.config.js"></script>
-        <script src="index.js"></script>
     </body>
 </html>

@@ -1,54 +1,80 @@
-import { uvPath } from '@titaniumnetwork-dev/ultraviolet';
-import { createBareServer } from '@tomphttp/bare-server-node';
 import express from 'express';
-import { createServer } from 'http';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { createServer } from 'node:http';
+import { hostname } from 'node:os';
+import path from 'node:path';
+import wisp from 'wisp-server-node';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// static paths
+import { baremuxPath } from '@mercuryworkshop/bare-mux/node';
+import { epoxyPath } from '@mercuryworkshop/epoxy-transport';
+import { uvPath } from '@titaniumnetwork-dev/ultraviolet';
+import fs from 'node:fs';
 
 const app = express();
-const server = createServer();
-const port = process.env.PORT || 3000;
+const server = createServer(app);
 
-// Create bare server
-const bareServer = createBareServer('/bare/');
+const __dirname = path.resolve();
+const publicPath = path.join(__dirname, 'public');
+const reactBuildPath = path.join(__dirname, 'dist');
 
-// bareServer.on('request', (req, res) => {
-//     console.log('Bare server request');
-//     res.end('Hello, world!');
-// });
+// check if the react build exists
+if (!fs.existsSync(reactBuildPath)) {
+    console.error('React build not found. Run `pnpm build` to generate it.');
+    process.exit(1);
+}
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+// Middleware to set headers
+app.use((req, res, next) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+    next();
+});
+
+// Static file serving
+app.use(express.static(publicPath));
+app.use('/reactlkjps/', express.static(reactBuildPath));
 app.use('/uv/', express.static(uvPath));
+app.use('/epoxy/', express.static(epoxyPath));
+app.use('/baremux/', express.static(baremuxPath));
 
-// Handle requests
-server.on('request', (req, res) => {
-    if (bareServer.shouldRoute(req)) {
-        bareServer.routeRequest(req, res);
-    } else {
-        app(req, res);
-    }
+// Special route for uv.config.js
+app.get('/uv/uv.config.js', (req, res) => {
+    res.sendFile('uv/uv.config.js', { root: publicPath });
 });
 
-// Handle upgrades
+// WebSocket upgrade handling
 server.on('upgrade', (req, socket, head) => {
-    if (bareServer.shouldRoute(req)) {
-        bareServer.routeUpgrade(req, socket, head);
-    } else {
-        socket.end();
-    }
+    if (req.url.endsWith('/wisp/')) wisp.routeRequest(req, socket, head);
+    else socket.end();
 });
 
-// Start server
-server.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+// Listening event
+server.on('listening', () => {
+    const address = server.address();
+
+    console.log('Listening on:');
+    console.log(`\thttp://localhost:${address.port}`);
+    console.log(`\thttp://${hostname()}:${address.port}`);
+    console.log(
+        `\thttp://${
+            address.family === 'IPv6' ? `[${address.address}]` : address.address
+        }:${address.port}`
+    );
 });
 
-// Handle shutdown
-process.on('SIGINT', () => {
-    bareServer.close();
-    process.exit(0);
-});
+// Shutdown handling
+function shutdown() {
+    console.log('SIGTERM signal received: closing HTTP server');
+    server.close(() => {
+        process.exit(0);
+    });
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+
+// Port configuration
+let port = parseInt(process.env.PORT || '');
+if (isNaN(port)) port = 3000;
+
+server.listen(port);

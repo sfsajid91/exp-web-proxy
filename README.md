@@ -10,13 +10,19 @@ A simple web proxy built with Node.js and Express and Ultraviolet.
 pnpm install
 ```
 
-2. Run the server
+2. Build the react app
+
+```bash
+pnpm build
+```
+
+3. Run the server
 
 ```bash
 pnpm start
 ```
 
-3. Open the browser and navigate to `http://localhost:3000`
+4. Open the browser and navigate to `http://localhost:3000`
 
 ## Docker
 

@@ -6,10 +6,23 @@ quickLinks.forEach((link) => {
     const originalHref = link.getAttribute('data-url');
     link.href = __uv$config.prefix + __uv$config.encodeUrl(originalHref);
 });
+const connection = new BareMux.BareMuxConnection('/baremux/worker.js');
 
 window.addEventListener('load', async () => {
     try {
         await registerSW();
+
+        let wispUrl =
+            (location.protocol === 'https:' ? 'wss' : 'ws') +
+            '://' +
+            location.host +
+            '/wisp/';
+
+        if ((await connection.getTransport()) !== '/epoxy/index.mjs') {
+            await connection.setTransport('/epoxy/index.mjs', [
+                { wisp: wispUrl },
+            ]);
+        }
     } catch (err) {
         console.error('Service Worker Registration Failed:', err);
     }
@@ -23,40 +36,12 @@ form.addEventListener('submit', async (event) => {
     else if (!(url.startsWith('https://') || url.startsWith('http://')))
         url = 'http://' + url;
 
-    window.location.href = __uv$config.prefix + __uv$config.encodeUrl(url);
+    // window.location.href = __uv$config.prefix + __uv$config.encodeUrl(url);
+    window.open(__uv$config.prefix + __uv$config.encodeUrl(url), '_blank');
 });
 
 function isUrl(val = '') {
     return (
         /^https?:\/\//.test(val) || (val.includes('.') && !val.startsWith(' '))
     );
-}
-
-async function registerSW() {
-    // Check if service workers are supported
-    if (!navigator.serviceWorker) {
-        throw new Error('Service workers are not supported in this browser');
-    }
-
-    // Check if already registered
-    const registration = await navigator.serviceWorker.getRegistration(
-        __uv$config.prefix
-    );
-    if (registration) {
-        console.log('Service worker already registered');
-        return registration;
-    }
-
-    // Register new service worker with specific options
-    const sw = await navigator.serviceWorker.register('./sw.js', {
-        scope: __uv$config.prefix,
-        updateViaCache: 'none',
-        type: 'module',
-    });
-
-    // Wait for the service worker to be ready
-    await navigator.serviceWorker.ready;
-
-    console.log('Service worker registered successfully');
-    return sw;
 }
