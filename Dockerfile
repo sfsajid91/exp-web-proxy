@@ -13,6 +13,9 @@ COPY package.json pnpm-lock.yaml* ./
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
+# Run the build
+RUN pnpm run build
+
 # Copy the rest of the application code
 COPY . .
 
@@ -27,8 +30,6 @@ COPY --from=builder /usr/src/app .
 
 # Install only production dependencies
 RUN npm install -g pnpm && pnpm install --prod
-
-RUN pnpm run build
 
 # Expose the port the app runs on
 EXPOSE 3000
