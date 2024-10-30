@@ -28,6 +28,8 @@ COPY --from=builder /usr/src/app .
 # Install only production dependencies
 RUN npm install -g pnpm && pnpm install --prod
 
+RUN pnpm run build
+
 # Expose the port the app runs on
 EXPOSE 3000
 
